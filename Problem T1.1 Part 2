@@ -1,0 +1,78 @@
+# -----------------------------
+# Data
+# -----------------------------
+
+temps = [33, 34, 40, 51, 60, 69, 75, 74, 67, 56, 47, 38]
+t_month = [16 + 31*i for i in range(12)]
+
+# Target days
+t_feb19 = 32 + 18
+t_july4 = 187 + 3
+t_dec25 = 342 + 24
+
+
+# -----------------------------
+# Piecewise Linear
+# -----------------------------
+
+def piecewise_linear(t):
+
+    if t < t_month[0]:
+        t0 = t_month[-1] - 372
+        y0 = temps[-1]
+        t1 = t_month[0]
+        y1 = temps[0]
+
+    elif t > t_month[-1]:
+        t0 = t_month[-1]
+        y0 = temps[-1]
+        t1 = t_month[0] + 372
+        y1 = temps[0]
+
+    else:
+        for i in range(len(t_month)-1):
+            if t_month[i] <= t <= t_month[i+1]:
+                t0 = t_month[i]
+                y0 = temps[i]
+                t1 = t_month[i+1]
+                y1 = temps[i+1]
+                break
+
+    slope = float(y1 - y0) / float(t1 - t0)
+    return y0 + slope * (t - t0)
+
+
+# -----------------------------
+# 9 Evenly Spaced Points
+# -----------------------------
+
+t_points = [372.0*i/8.0 for i in range(9)]
+y_points = [piecewise_linear(t) for t in t_points]
+
+
+# -----------------------------
+# Lagrange Polynomial
+# -----------------------------
+
+def lagrange(t, x_vals, y_vals):
+    total = 0.0
+    n = len(x_vals)
+
+    for i in range(n):
+        term = y_vals[i]
+        for j in range(n):
+            if i != j:
+                term *= (t - x_vals[j]) / (x_vals[i] - x_vals[j])
+        total += term
+
+    return total
+
+
+# -----------------------------
+# Print Results
+# -----------------------------
+
+print ("Method (2): Degree-8 Polynomial Interpolation")
+print ("Feb 19:", round(lagrange(t_feb19, t_points, y_points), 2))
+print ("July 4:", round(lagrange(t_july4, t_points, y_points), 2))
+print ("Dec 25:", round(lagrange(t_dec25, t_points, y_points), 2))
