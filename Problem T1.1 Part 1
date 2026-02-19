@@ -1,0 +1,43 @@
+# -----------------------------
+# Method 1: Piecewise Linear Interpolation
+# -----------------------------
+
+# Data
+temps = [33, 34, 40, 51, 60, 69, 75, 74, 67, 56, 47, 38]
+t_month = [16 + 31*i for i in range(12)]
+total_days = 12*31  # 372
+
+# Target days
+t_feb19 = 32 + 18
+t_july4 = 187 + 3
+t_dec25 = 342 + 24
+
+# Compute slopes
+slopes = []
+for i in range(11):
+    slopes.append(float(temps[i+1]-temps[i])/float(t_month[i+1]-t_month[i]))
+slopes.append(float(temps[0]-temps[11])/float(t_month[0]+total_days-t_month[11]))  # Dec→Jan
+
+# Piecewise linear function
+def piecewise_linear(t):
+    if t < t_month[0]:
+        t0, y0 = t_month[-1]-total_days, temps[-1]
+        t1, y1 = t_month[0], temps[0]
+    elif t > t_month[-1]:
+        t0, y0 = t_month[-1], temps[-1]
+        t1, y1 = t_month[0]+total_days, temps[0]
+    else:
+        for i in range(11):
+            if t_month[i] <= t <= t_month[i+1]:
+                t0, y0 = t_month[i], temps[i]
+                t1, y1 = t_month[i+1], temps[i+1]
+                break
+    slope = (y1 - y0)/(t1 - t0)
+    return y0 + slope*(t - t0)
+
+# Results
+print("Method 1: Piecewise Linear")
+print("Feb 19:", round(piecewise_linear(t_feb19), 2))
+print("July 4:", round(piecewise_linear(t_july4), 2))
+print("Dec 25:", round(piecewise_linear(t_dec25), 2))
+print("Slopes:", [round(s,6) for s in slopes])
