@@ -1,0 +1,54 @@
+# -----------------------------
+# Method 2: Degree-8 Lagrange Polynomial
+# -----------------------------
+
+# Data
+temps = [33, 34, 40, 51, 60, 69, 75, 74, 67, 56, 47, 38]
+t_month = [16 + 31*i for i in range(12)]
+total_days = 12*31
+
+# Target days
+t_feb19 = 32 + 18
+t_july4 = 187 + 3
+t_dec25 = 342 + 24
+
+# Piecewise linear helper
+def piecewise_linear(t):
+    if t < t_month[0]:
+        t0, y0 = t_month[-1]-total_days, temps[-1]
+        t1, y1 = t_month[0], temps[0]
+    elif t > t_month[-1]:
+        t0, y0 = t_month[-1], temps[-1]
+        t1, y1 = t_month[0]+total_days, temps[0]
+    else:
+        for i in range(11):
+            if t_month[i] <= t <= t_month[i+1]:
+                t0, y0 = t_month[i], temps[i]
+                t1, y1 = t_month[i+1], temps[i+1]
+                break
+    slope = (y1 - y0)/(t1 - t0)
+    return y0 + slope*(t - t0)
+
+# 9 evenly spaced points
+t_points = [total_days*i/8.0 for i in range(9)]
+y_points = [piecewise_linear(t) for t in t_points]
+
+# Lagrange polynomial evaluator
+def lagrange(t, x_vals, y_vals):
+    total = 0.0
+    n = len(x_vals)
+    for i in range(n):
+        term = y_vals[i]
+        for j in range(n):
+            if i != j:
+                term *= (t - x_vals[j]) / (x_vals[i] - x_vals[j])
+        total += term
+    return total
+
+# Results
+print("Method 2: Degree-8 Lagrange Polynomial")
+print("Feb 19:", round(lagrange(t_feb19, t_points, y_points), 2))
+print("July 4:", round(lagrange(t_july4, t_points, y_points), 2))
+print("Dec 25:", round(lagrange(t_dec25, t_points, y_points), 2))
+print("t_points:", [round(tp,2) for tp in t_points])
+print("y_points:", [round(y,2) for y in y_points])
